@@ -1,61 +1,111 @@
 import React, { useState, useEffect } from "react";
 import { supabase } from "../../../supabaseClient";
 import { UserAuth } from "../../../Context/AuthContext";
-import { XIcon, PlusIcon } from "../../../Icons"; // Changed UploadCloudIcon to PlusIcon, assuming XIcon is for closing
+import { XIcon, PlusIcon } from "../../../Icons"; 
 
-const ResourceUploadModal = ({ isOpen, onClose, onUploadSuccess, defaultResourceType }) => { // Added defaultResourceType
+const ResourceUploadModal = ({ isOpen, onClose, onUploadSuccess, defaultResourceType }) => {
   const { session } = UserAuth();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [selectedCourseId, setSelectedCourseId] = useState(""); // New state for selected course
-  const [subjectId, setSubjectId] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [selectedSemester, setSelectedSemester] = useState("");
+  const [subjectId, setSubjectId] = useState(""); 
   const [resourceType, setResourceType] = useState(defaultResourceType || "NOTE");
   const [file, setFile] = useState(null);
-  const [courses, setCourses] = useState([]); // New state for courses
-  const [subjects, setSubjects] = useState([]); // Will be filtered by course
-  const [filteredSubjects, setFilteredSubjects] = useState([]); // Subjects for the dropdown
+  
+  const [coursesList, setCoursesList] = useState([]);
+  const [availableSemesters, setAvailableSemesters] = useState([]);
+  const [subjectsList, setSubjectsList] = useState([]); 
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
 
-  // Hardcoded department and subject lists for testing
+ 
   useEffect(() => {
-    if (isOpen) {
-      // Hardcoded departments
-      const departmentOptions = [
-        { id: "MCA Integrated", name: "MCA Integrated" },
-        { id: "MTech Integrated", name: "MTech Integrated" },
-        { id: "MBA MS Integrated", name: "MBA MS Integrated" },
-        { id: "MBA MS 2 Years", name: "MBA MS 2 Years" },
-        { id: "BCom", name: "BCom" },
-        { id: "BCom Hons", name: "BCom Hons" },
-        { id: "MBA Tourism", name: "MBA Tourism" },
-      ];
-      setCourses(departmentOptions);
-
-      // Hardcoded subjects - IMPORTANT: Replace 'placeholder-uuid-...' with actual subject IDs from your DB
-      const testSubjectOptions = [
-        { id: "09da954e-b2bb-4ed6-aabd-bc384e15b1d1", name: "DSA" },
-        { id: "placeholder-uuid-subject-2", name: "Test Subject Two (Replace ID)" }
-      ];
-      setFilteredSubjects(testSubjectOptions); // Using filteredSubjects directly for the subject dropdown
-
-      // Reset form fields
-      setResourceType(defaultResourceType || "NOTE");
+    const fetchCourses = async () => {
+      if (!isOpen) return;
+      setIsLoading(true);
+      setError(null);
+      
       setTitle("");
       setDescription("");
-      setSelectedCourseId(""); // Reset selected course
-      setSubjectId("");    // Reset selected subject
+      setSelectedCourseId("");
+      setSelectedSemester("");
+      setSubjectId("");
+      setResourceType(defaultResourceType || "NOTE");
       setFile(null);
-      setError(null);
+      setAvailableSemesters([]);
+      setSubjectsList([]);
       setSuccessMessage(null);
-      if (document.getElementById('file-upload-input')) {
+       if (document.getElementById('file-upload-input')) {
         document.getElementById('file-upload-input').value = "";
       }
-    }
+
+      try {
+        const { data, error: coursesError } = await supabase
+          .from("courses")
+          .select("id, name, duration_years")
+          .order("name", { ascending: true });
+        if (coursesError) throw coursesError;
+        setCoursesList(data || []);
+      } catch (err) {
+        console.error("Error fetching courses:", err);
+        setError("Failed to load courses.");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCourses();
   }, [isOpen, defaultResourceType]);
 
-  // Removed the useEffect that filters subjects based on selectedCourseId as subjects are now hardcoded
+  
+  useEffect(() => {
+    if (selectedCourseId) {
+      const course = coursesList.find(c => c.id === selectedCourseId);
+      if (course && course.duration_years) {
+        const numSemesters = course.duration_years * 2;
+        setAvailableSemesters(Array.from({ length: numSemesters }, (_, i) => i + 1));
+      } else {
+        setAvailableSemesters([]);
+      }
+    } else {
+      setAvailableSemesters([]);
+    }
+    setSelectedSemester(""); 
+    setSubjectsList([]);    
+    setSubjectId("");       
+  }, [selectedCourseId, coursesList]);
+
+ 
+  useEffect(() => {
+    const fetchSubjects = async () => {
+      if (selectedCourseId && selectedSemester) {
+        setIsLoading(true);
+        setError(null);
+        try {
+          const { data, error: subjectsError } = await supabase
+            .from("subjects")
+            .select("id, name")
+            .eq("course_id", selectedCourseId)
+            .eq("semester_number", parseInt(selectedSemester, 10))
+            .order("name", { ascending: true });
+          if (subjectsError) throw subjectsError;
+          setSubjectsList(data || []);
+        } catch (err) {
+          console.error("Error fetching subjects:", err);
+          setError("Failed to load subjects for the selected course/semester.");
+          setSubjectsList([]);
+        } finally {
+          setIsLoading(false);
+        }
+      } else {
+        setSubjectsList([]); 
+      }
+    };
+    fetchSubjects();
+    setSubjectId(""); 
+  }, [selectedCourseId, selectedSemester]);
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
@@ -86,12 +136,12 @@ const ResourceUploadModal = ({ isOpen, onClose, onUploadSuccess, defaultResource
     setIsLoading(true);
 
     try {
-      // 1. Upload file to Supabase Storage
+     
       const fileExt = file.name.split(".").pop();
-      const uniqueFileName = `${session.user.id}/${resourceType}/${Date.now()}.${fileExt}`; // More unique path
+      const uniqueFileName = `${session.user.id}/${resourceType}/${Date.now()}.${fileExt}`; 
       
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("uploads") // Your bucket name
+        .from("uploads") 
         .upload(uniqueFileName, file, {
           cacheControl: '3600',
           upsert: false,
@@ -108,7 +158,7 @@ const ResourceUploadModal = ({ isOpen, onClose, onUploadSuccess, defaultResource
         subject_id: subjectId,
         uploader_profile_id: session.user.id,
         file_name: file.name,
-        file_path: uploadData.path, // Path from storage upload response
+        file_path: uploadData.path, 
         file_size_bytes: file.size,
         mime_type: file.type,
         status: "PENDING", 
@@ -131,11 +181,10 @@ const ResourceUploadModal = ({ isOpen, onClose, onUploadSuccess, defaultResource
       setResourceType("NOTE");
       setFile(null);
       if (document.getElementById('file-upload-input')) {
-        document.getElementById('file-upload-input').value = ""; // Reset file input
+        document.getElementById('file-upload-input').value = ""; 
       }
       if (onUploadSuccess) onUploadSuccess();
-      // setTimeout(onClose, 2000); // Optionally close modal after a delay
-
+      
     } catch (err) {
       console.error("Upload failed:", err);
       setError(`Upload failed: ${err.message}`);
@@ -197,7 +246,7 @@ const ResourceUploadModal = ({ isOpen, onClose, onUploadSuccess, defaultResource
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C79745] focus:border-[#C79745] sm:text-sm"
             >
               <option value="">Select a course/department</option>
-              {courses.map((course) => (
+              {coursesList.map((course) => (
                 <option key={course.id} value={course.id}>
                   {course.name}
                 </option>
@@ -206,17 +255,36 @@ const ResourceUploadModal = ({ isOpen, onClose, onUploadSuccess, defaultResource
           </div>
 
           <div>
+            <label htmlFor="semester" className="block text-sm font-medium text-gray-700">Semester <span className="text-red-500">*</span></label>
+            <select
+              id="semester"
+              value={selectedSemester}
+              onChange={(e) => setSelectedSemester(e.target.value)}
+              required
+              disabled={!selectedCourseId || availableSemesters.length === 0}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C79745] focus:border-[#C79745] sm:text-sm disabled:bg-gray-50"
+            >
+              <option value="">Select a semester</option>
+              {availableSemesters.map((sem) => (
+                <option key={sem} value={sem}>
+                  Semester {sem}
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <div>
             <label htmlFor="subjectId" className="block text-sm font-medium text-gray-700">Subject <span className="text-red-500">*</span></label>
             <select
               id="subjectId"
               value={subjectId}
               onChange={(e) => setSubjectId(e.target.value)}
               required
-              disabled={!selectedCourseId || filteredSubjects.length === 0} // Disable if no course selected or no subjects for course
+              disabled={!selectedSemester || subjectsList.length === 0}
               className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#C79745] focus:border-[#C79745] sm:text-sm disabled:bg-gray-50"
             >
               <option value="">Select a subject</option>
-              {filteredSubjects.map((subject) => (
+              {subjectsList.map((subject) => (
                 <option key={subject.id} value={subject.id}>
                   {subject.name}
                 </option>

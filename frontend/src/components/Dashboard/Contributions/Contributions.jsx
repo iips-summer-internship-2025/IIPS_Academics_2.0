@@ -1,5 +1,4 @@
-import React, { useState } from "react"; // Removed useCallback, ResourceUploadModal, UploadCloudIcon
-import Notes from "./Notes";
+import React, { useState } from "react"; 
 import PYQs from "./PYQs";
 import Syllabus from "./Syllabus";
 

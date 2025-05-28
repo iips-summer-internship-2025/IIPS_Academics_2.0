@@ -14,7 +14,7 @@ function FilterPanel({
   const hasActiveFilters = searchFilter || semesterFilter || departmentFilter;
 
   return (
-    <div className="py-6"> {/* Removed bg-white and shadow here */}
+    <div className="py-6"> {}
       <div className="flex items-center justify-between mb-6">
         {hasActiveFilters && (
           <button
@@ -28,7 +28,7 @@ function FilterPanel({
         )}
       </div>
 
-      {/* Rest of your FilterPanel content remains the same */}
+      {}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Search input */}
         <div className="relative">
@@ -49,7 +49,7 @@ function FilterPanel({
           </div>
         </div>
 
-        {/* Semester dropdown */}
+        {}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Semester
@@ -68,7 +68,7 @@ function FilterPanel({
           </select>
         </div>
 
-        {/* Department dropdown */}
+        {}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Programs
@@ -79,9 +79,10 @@ function FilterPanel({
             className="block w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#C79745] focus:border-[#C79745] transition-all duration-200 sm:text-sm bg-white cursor-pointer"
           >
             <option value="">All Courses</option>
-            {departments.map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
+            {}
+            {(departments || []).map((course) => (
+              <option key={course.id} value={course.id}> {}
+                {course.name} {}
               </option>
             ))}
           </select>
@@ -106,7 +107,7 @@ function FilterPanel({
               )}
               {departmentFilter && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  {departmentFilter}
+                  { (departments.find(dept => dept.id === departmentFilter))?.name || departmentFilter }
                 </span>
               )}
             </div>

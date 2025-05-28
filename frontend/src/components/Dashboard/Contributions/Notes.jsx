@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { BookIcon, CalendarIcon, StarIcon, PlusIcon } from "../../../Icons"; // Changed to PlusIcon
+import { BookIcon, CalendarIcon, StarIcon, PlusIcon } from "../../../Icons"; 
 import { FaAngleRight } from "react-icons/fa6";
 import noData from "../../../assets/noData.svg";
 import { UserAuth } from "../../../Context/AuthContext";
 import { supabase } from "../../../supabaseClient";
-import ResourceUploadModal from "./ResourceUploadModal"; // Import the modal
+import ResourceUploadModal from "./ResourceUploadModal"; 
 
 function Card({ children }) {
   return (
@@ -51,19 +51,19 @@ const contributions = [
 ];
 
 export default function Notes() {
-  // Removed propKey from component signature
+
   const { session } = UserAuth();
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [fetchTrigger, setFetchTrigger] = useState(0); // To trigger re-fetch
+  const [fetchTrigger, setFetchTrigger] = useState(0); 
 
   const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleUploadSuccess = useCallback(() => {
-    setFetchTrigger((prev) => prev + 1); // Increment to trigger useEffect re-fetch
+    setFetchTrigger((prev) => prev + 1); 
     setTimeout(() => {
       handleCloseModal();
     }, 1500);
@@ -92,14 +92,14 @@ export default function Notes() {
           )
           .eq("uploader_profile_id", session.user.id)
           .eq("resource_type", "NOTE")
-          // .eq("status", "APPROVED") // Fetch all statuses for the user's own notes
+         
           .order("uploaded_at", { ascending: false });
 
         if (fetchError) throw fetchError;
 
         setNotes(
           data.map((note) => ({
-            id: note.id, // Added id for key
+            id: note.id, 
             title: note.title,
             semester: `${note.subject?.course?.name || ""} Semester ${
               note.subject?.semester_number || ""
@@ -108,7 +108,7 @@ export default function Notes() {
               ? new Date(note.uploaded_at).toLocaleDateString()
               : "N/A",
             rating: note.rating_average || 0,
-            // reward: note.points_awarded ? `+${note.points_awarded} Gold` : "No Reward", // Removed reward
+           
             status: note.status,
           }))
         );
@@ -122,7 +122,7 @@ export default function Notes() {
     };
 
     fetchUserNotes();
-  }, [session, fetchTrigger]); // Removed propKey from dependencies
+  }, [session, fetchTrigger]); 
 
   const getStatusColor = (status) => {
     switch (status) {

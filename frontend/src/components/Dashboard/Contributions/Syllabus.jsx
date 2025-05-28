@@ -4,8 +4,8 @@ import { FaAngleRight } from "react-icons/fa6";
 import noData from "../../../assets/noData.svg";
 import { UserAuth } from "../../../Context/AuthContext";
 import { supabase } from "../../../supabaseClient";
-import { CalendarIcon, PlusIcon } from "../../../Icons"; // Changed to PlusIcon
-import ResourceUploadModal from "./ResourceUploadModal"; // Import the modal
+import { CalendarIcon, PlusIcon } from "../../../Icons"; 
+import ResourceUploadModal from "./ResourceUploadModal"; 
 
 function Card({ children }) {
   return (
@@ -20,7 +20,7 @@ function CardContent({ children }) {
     <div className="p-4 flex items-center justify-between  ">{children}</div>
   );
 }
-export default function Syllabus() { // Removed propKey
+export default function Syllabus() { 
   const { session } = UserAuth();
   const [syllabusFiles, setSyllabusFiles] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,7 @@ export default function Syllabus() { // Removed propKey
           `)
           .eq("uploader_profile_id", session.user.id)
           .eq("resource_type", "SYLLABUS")
-          // .eq("status", "APPROVED") // Fetch all statuses for the user's own syllabus files
+         
           .order("uploaded_at", { ascending: false });
 
         if (fetchError) throw fetchError;
@@ -70,7 +70,7 @@ export default function Syllabus() { // Removed propKey
             title: syllabus.title,
             semester: `${syllabus.subject?.course?.name || ""} Semester ${syllabus.subject?.semester_number || ""}`,
             date: syllabus.uploaded_at ? new Date(syllabus.uploaded_at).toLocaleDateString() : "N/A",
-            // reward: syllabus.points_awarded ? `+${syllabus.points_awarded} Gold` : "No Reward", // Removed reward
+           
             status: syllabus.status,
           }))
         );
@@ -84,7 +84,7 @@ export default function Syllabus() { // Removed propKey
     };
 
     fetchUserSyllabus();
-  }, [session, fetchTrigger]); // Removed propKey
+  }, [session, fetchTrigger]); 
 
   const getStatusColor = (status) => {
     switch (status) {

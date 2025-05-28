@@ -4,8 +4,8 @@ import { FaAngleRight } from "react-icons/fa6";
 import { IoNewspaperOutline } from "react-icons/io5";
 import { UserAuth } from "../../../Context/AuthContext";
 import { supabase } from "../../../supabaseClient";
-import { CalendarIcon, StarIcon, PlusIcon } from "../../../Icons"; // Changed to PlusIcon
-import ResourceUploadModal from "./ResourceUploadModal"; // Import the modal
+import { CalendarIcon, StarIcon, PlusIcon } from "../../../Icons"; 
+import ResourceUploadModal from "./ResourceUploadModal"; 
 
 function Card({ children }) {
   return (
@@ -20,7 +20,7 @@ function CardContent({ children }) {
     <div className="p-4 flex items-center justify-between  ">{children}</div>
   );
 }
-export default function PYQs() { // Removed propKey
+export default function PYQs() { 
   const { session } = UserAuth();
   const [pyqs, setPyqs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +59,6 @@ export default function PYQs() { // Removed propKey
           `)
           .eq("uploader_profile_id", session.user.id)
           .eq("resource_type", "PYQ")
-          // .eq("status", "APPROVED") // Fetch all statuses for the user's own PYQs
           .order("uploaded_at", { ascending: false });
 
         if (fetchError) throw fetchError;
@@ -70,7 +69,6 @@ export default function PYQs() { // Removed propKey
             title: pyq.title,
             semester: `${pyq.subject?.course?.name || ""} Semester ${pyq.subject?.semester_number || ""}`,
             date: pyq.uploaded_at ? new Date(pyq.uploaded_at).toLocaleDateString() : "N/A",
-            // reward: pyq.points_awarded ? `+${pyq.points_awarded} Gold` : "No Reward", // Removed reward
             status: pyq.status,
             rating: pyq.rating_average || 0, 
           }))
@@ -85,8 +83,7 @@ export default function PYQs() { // Removed propKey
     };
 
     fetchUserPYQs();
-  }, [session, fetchTrigger]); // Removed propKey
-
+  }, [session, fetchTrigger]); 
   const getStatusColor = (status) => {
     switch (status) {
       case 'PENDING': return 'bg-yellow-100 text-yellow-800';
