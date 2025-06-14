@@ -239,7 +239,7 @@ const TopRecruiters = () => {
 // Main App Component
 const Placement = () => {
   return (
-    <div className="font-sans leading-relaxed text-[#2b3333] m-0 p-0">
+    <div className="leading-relaxed text-[#2b3333] m-0 p-0">
       <HeroSection />
       <PlacementStats />
       <TopStudents />

@@ -88,7 +88,7 @@ export default function NotFound() {
               Go Home
             </Button>
           </Link>
-          <Button variant="outline" onClick={() => navigate(-1)}>
+          <Button variant="outline" onClick={() => navigate(-2)}>
             <HiOutlineArrowLeft className="mr-2" />
             Go Back
           </Button>

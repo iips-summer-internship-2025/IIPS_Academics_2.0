@@ -77,7 +77,7 @@ export default function ResourceFilter({ filters, onChange }) {
           <div className="space-y-1.5">
             <label className="block text-sm font-medium text-gray-700">Status</label>
             <Select
-              value={status || undefined}
+              value={filters.status || undefined}
               onChange={(value) => setStatus(value)}
               allowClear
               placeholder="All Statuses"
