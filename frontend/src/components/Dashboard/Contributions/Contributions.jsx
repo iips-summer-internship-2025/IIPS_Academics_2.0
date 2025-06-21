@@ -24,7 +24,7 @@ const Contributions = ({ canUpload }) => {
   const handleCloseModal = () => setIsModalOpen(false);
 
   const handleUploadSuccess = () => {
-    setFetchTrigger((prev) => prev + 1);
+    setFetchTrigger(prev => prev + 1);
     setTimeout(() => {
       handleCloseModal();
     }, 1500);
@@ -51,6 +51,7 @@ const Contributions = ({ canUpload }) => {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-[#FFFEFE] pb-2">
         <div className="flex justify-between items-start mb-2 sm:flex-row flex-col">
           <div>
@@ -59,7 +60,7 @@ const Contributions = ({ canUpload }) => {
               Resources you've shared with the community.
             </p>
           </div>
-          {canUpload && (
+          {canUpload ? (
             <button
               onClick={handleUploadClick}
               className="bg-[#2B3333] text-white mt-4 px-4 py-2 rounded-sm font-medium hover:bg-[#1f2727] transition flex items-center gap-2"
@@ -67,19 +68,24 @@ const Contributions = ({ canUpload }) => {
               <PlusIcon className="w-8 h-4" />
               Upload New {activeTab}
             </button>
+          ) : (
+            <p className="text-sm text-yellow-600 mt-4">
+              Complete profile & wait for admin verification before uploading.
+            </p>
           )}
         </div>
 
-        {/* Tab Navbar */}
+        {/* Tabs */}
         <div className="grid grid-cols-3 gap-2 p-1 mt-4 border-2 rounded-sm w-full">
-          {tabs.map((tab) => (
+          {tabs.map(tab => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`w-full px-4 py-2 rounded-sm font-medium text-center transition-colors ${activeTab === tab
-                ? "bg-[#2B3333] text-white"
-                : "bg-[#FEFEFE] text-black hover:bg-gray-200"
-                }`}
+              className={`w-full px-4 py-2 rounded-sm font-medium text-center transition-colors ${
+                activeTab === tab
+                  ? "bg-[#2B3333] text-white"
+                  : "bg-[#FEFEFE] text-black hover:bg-gray-200"
+              }`}
             >
               {tab}
             </button>
@@ -87,10 +93,12 @@ const Contributions = ({ canUpload }) => {
         </div>
       </div>
 
-      {/* Scrollable Content */}
+      {/* Content */}
       <div className="flex-1 overflow-y-auto mt-4 pr-1 custom-scrollbar">
         {renderTabContent()}
       </div>
+
+      {/* Upload Modal */}
       <ResourceUploadModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -102,4 +110,3 @@ const Contributions = ({ canUpload }) => {
 };
 
 export default Contributions;
-
